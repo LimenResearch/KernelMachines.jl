@@ -1,0 +1,13 @@
+name = "KernelNetworks"
+uuid = "6717196d-eae9-43d0-801c-fc416e8966f6"
+authors = ["Pietro Vertechi <pietro.vertechi@neuro.fchampalimaud.org>"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
