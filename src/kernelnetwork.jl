@@ -12,21 +12,25 @@ end
 
 @functor KernelLayer
 
-function update(u′, v, old=true)
+radialkernel(u′, v) = radialkernel_multiply(u′, v, true)
+
+function radialkernel_multiply(u′, v, ker)
     u2′ = sum(abs2.(u′), dims=2)
     v2 = sum(abs2.(v), dims=1)
     u′v = u′ * v
-    @. exp(2u′v - u2′ - v2) * old
+    @. exp(2u′v - u2′ - v2) * ker
 end
 
-function (kl::KernelLayer)(old, v)
-    ker = update(kl.xs′, v, old)
+(kl::KernelLayer)(::Nothing, v) = kl(true, v)
+
+function (kl::KernelLayer)(k, v)
+    ker = radialkernel_multiply(kl.xs′, v, k)
     val = kl.cs * ker
     return ker, val
 end
 
 function dot(kl1::KernelLayer, kl2::KernelLayer)
-    ker = update(kl1.xs′, transpose(kl2.xs′))
+    ker = radialkernel(kl1.xs′, transpose(kl2.xs′))
     coefs = transpose(kl1.cs) * kl2.cs
     return dot(coefs, ker)
 end
@@ -42,22 +46,16 @@ end
 
 @functor KernelNetwork
 
-function to_buffer(v)
-    b = Buffer(v)
-    b .= v
-    return b
-end
-
 function (kn::KernelNetwork)(m)
     ls = kn.layers
-    i0, i1 = 1, size(first(ls).xs′, 2)
-    buffer = to_buffer(m)
-    foldl(ls, init=true) do acc, l
-        ker, val = l(acc, buffer[i0:i1, :])
-        i0 = i1 + 1
-        i1 += size(val, 1)
-        buffer[i0:i1, :] += val
-        return ker
+    buffer = Buffer(m)
+    copyto!(buffer, m)
+    ker = nothing
+    idxs::UnitRange = axes(first(ls).xs′, 2)
+    for l in ls
+        ker, val = l(ker, buffer[idxs, :])
+        idxs = last(idxs) .+ axes(val, 1)
+        buffer[idxs, :] += val
     end
     return copy(buffer)
 end
