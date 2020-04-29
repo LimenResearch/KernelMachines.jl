@@ -44,25 +44,31 @@ loss_perceptron = [train!(model_perceptron, inputs, outputs, inputs′, outputs�
 ##
 
 # using BSON
+# BSON.@save "saved/polynomial.bson" loss_kernel loss_perceptron model_kernel model_perceptron 
 # BSON.@load "saved/polynomial.bson" loss_kernel loss_perceptron model_kernel model_perceptron 
 
 ##
 
 using Plots
+using Plots.Measures
+
 theme(:wong)
+default(legendfont=14, tickfont=14, guidefont=14, titlefont=18, size=(800, 600))
 
-plot([last.(l1) last.(l2)], label = ["Kernel Network" "Multilayer Perceptron"], yscale=:log10,
-    xlabel = "Epoch", ylabel = "Loss", linewidth=2)
+plot([last.(loss_kernel) last.(loss_perceptron)], label = ["Kernel Network" "Multilayer Perceptron"], yscale=:log10,
+    xlabel = "Epoch", ylabel = "Loss", linewidth=2, bottom_margin=5mm)
 
-plot!([first.(l1) first.(l2)], color = permutedims(Plots.palette(:wong)[1:2]), yscale=:log10,
+plot!([first.(loss_kernel) first.(loss_perceptron)], color = permutedims(Plots.palette(:wong)[1:2]), yscale=:log10,
     label = "", linestyle = :dash, linewidth=2)
 
 ##
 
-plt1 = heatmap(0:0.05:1, 0:0.05:1, f, clims = (-3, 1), title="Truth", colorbar = false)
+plt1 = heatmap(0:0.05:1, 0:0.05:1, f, clims = (-3, 1),
+    title="Truth", colorbar = false, axisratio = 1)
 plt2 = heatmap(0:0.05:1, 0:0.05:1, only∘model_kernel∘vcat, clims = (-3, 1),
-    title = "Kernel Network", colorbar = false)
+    title = "Kernel Network", colorbar = false, axisratio = 1)
 plt3 = heatmap(0:0.05:1, 0:0.05:1, only∘model_perceptron∘vcat, clims = (-3, 1),
-    title = "Multilayer Perceptron", colorbar = false)
+    title = "Multilayer Perceptron", colorbar = false, axisratio = 1)
 
-plot(plt1, plt2, plt3, size = (1200, 400), layout = (1, 3), ticks=false)
+plot(plt1, plt2, plt3, size = (1200, 400),
+    layout = (1, 3), frame = :none, top_margin=5mm)

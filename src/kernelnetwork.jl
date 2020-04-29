@@ -15,10 +15,10 @@ end
 radialkernel(u′, v) = radialkernel_multiply(u′, v, true)
 
 function radialkernel_multiply(u′, v, ker)
-    u2′ = sum(abs2.(u′), dims=2)
-    v2 = sum(abs2.(v), dims=1)
+    u′² = sum(abs2.(u′), dims=2)
+    v² = sum(abs2.(v), dims=1)
     u′v = u′ * v
-    @. exp(2u′v - u2′ - v2) * ker
+    @. exp(u′v - u′² / 2  - v² / 2) * ker
 end
 
 (kl::KernelLayer)(::Nothing, v) = kl(true, v)
@@ -31,8 +31,7 @@ end
 
 function dot(kl1::KernelLayer, kl2::KernelLayer)
     ker = radialkernel(kl1.xs′, transpose(kl2.xs′))
-    coefs = transpose(kl1.cs) * kl2.cs
-    return dot(coefs, ker)
+    return dot(kl1.cs * ker, kl2.cs)
 end
 
 struct KernelNetwork{T}
