@@ -1,4 +1,4 @@
-using KernelNetworks
+using KernelMachines
 using Test
 using FiniteDiff: finite_difference_gradient
 using Zygote: gradient
@@ -15,7 +15,7 @@ using LinearAlgebra
 end
 
 @testset "networks" begin
-    kn = KernelNetwork((2, 3, 3, 2), 20)
+    kn = KernelMachine((2, 3, 3, 2), 20)
     ps, re = destructure(kn)
     v = rand(10, 20)
     _f = ps -> sum(re(ps)(v))
@@ -27,7 +27,7 @@ end
 @testset "scalar product" begin
     kl1 = KernelLayer(2 => 3, 10) |> f64
     kl2 = KernelLayer(2 => 3, 10) |> f64
-    ker = KernelNetworks.radialkernel(kl1.xs′, transpose(kl2.xs′))
+    ker = KernelMachines.radialkernel(kl1.xs′, transpose(kl2.xs′))
     coefs = transpose(kl1.cs) * kl2.cs
     rows1, rows2 = eachrow(kl1.cs), eachrow(kl2.cs)
     d = dot(kl1, kl2)

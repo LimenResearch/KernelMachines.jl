@@ -1,1 +1,1 @@
-# KernelNetworks
+# KernelMachines

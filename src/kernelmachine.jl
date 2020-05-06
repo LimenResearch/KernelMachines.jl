@@ -34,18 +34,18 @@ function dot(kl1::KernelLayer, kl2::KernelLayer)
     return dot(kl1.cs * ker, kl2.cs)
 end
 
-struct KernelNetwork{T}
+struct KernelMachine{T}
     layers::Vector{KernelLayer{T}}
 end
 
-function KernelNetwork(sizes::Tuple, n)
+function KernelMachine(sizes::Tuple, n)
     layers = KernelLayer.(zip(Base.front(sizes), Base.tail(sizes)), n)
-    return KernelNetwork(layers)
+    return KernelMachine(layers)
 end
 
-@functor KernelNetwork
+@functor KernelMachine
 
-function (kn::KernelNetwork)(m)
+function (kn::KernelMachine)(m)
     ls = kn.layers
     buffer = Buffer(m)
     copyto!(buffer, m)
@@ -59,6 +59,6 @@ function (kn::KernelNetwork)(m)
     return copy(buffer)
 end
 
-function dot(kn1::KernelNetwork, kn2::KernelNetwork)
+function dot(kn1::KernelMachine, kn2::KernelMachine)
     sum(map(dot, kn1.layers, kn2.layers))
 end

@@ -1,4 +1,4 @@
-using KernelNetworks
+using KernelMachines
 using LinearAlgebra, Statistics
 using Flux: params
 using Flux
@@ -12,7 +12,7 @@ f((x, y)) = f(x, y)
 
 ##
 
-model_kernel = Chain(Linear(2, 7), KernelNetwork((2, 3, 2), 6), Linear(7, 1))
+model_kernel = Chain(Linear(2, 7), KernelMachine((2, 3, 2), 6), Linear(7, 1))
 model_perceptron = Chain(Dense(2, 5, relu), Dense(5, 5, relu), Dense(5, 5, relu), Dense(5, 1))
 
 model_kernel(rand(Float32, 2, 10))

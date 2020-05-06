@@ -1,4 +1,4 @@
-using Loess, Plots, KernelNetworks
+using Loess, Plots, KernelMachines
 using Plots.Measures
 using Optim
 using Zygote: gradient
@@ -16,7 +16,7 @@ vs = predict(model, us)
 
 model = Chain(
     Linear(1, 6),
-    KernelNetwork((2, 2, 2), 5),
+    KernelMachine((2, 2, 2), 5),
     Linear(6, 1)) |> f64
 
 ps, re = Flux.destructure(model)
