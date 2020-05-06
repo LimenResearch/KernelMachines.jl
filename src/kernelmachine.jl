@@ -12,19 +12,19 @@ end
 
 @functor KernelLayer
 
-radialkernel(u′, v) = radialkernel_multiply(u′, v, true)
+radialkernel(u′, v) = radialkernel_add(u′, v, false)
 
-function radialkernel_multiply(u′, v, ker)
+function radialkernel_add(u′, v, ker)
     u′² = sum(abs2.(u′), dims=2)
     v² = sum(abs2.(v), dims=1)
     u′v = u′ * v
-    @. exp(u′v - u′² / 2  - v² / 2) * ker
+    @. exp(u′v - u′² / 2  - v² / 2) + ker
 end
 
-(kl::KernelLayer)(::Nothing, v) = kl(true, v)
+(kl::KernelLayer)(::Nothing, v) = kl(false, v)
 
 function (kl::KernelLayer)(k, v)
-    ker = radialkernel_multiply(kl.xs′, v, k)
+    ker = radialkernel_add(kl.xs′, v, k)
     val = kl.cs * ker
     return ker, val
 end
