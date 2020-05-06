@@ -45,8 +45,8 @@ end
 
 @functor KernelMachine
 
-function (kn::KernelMachine)(m)
-    ls = kn.layers
+function (km::KernelMachine)(m)
+    ls = km.layers
     buffer = Buffer(m)
     copyto!(buffer, m)
     ker = nothing
@@ -59,6 +59,6 @@ function (kn::KernelMachine)(m)
     return copy(buffer)
 end
 
-function dot(kn1::KernelMachine, kn2::KernelMachine)
-    sum(map(dot, kn1.layers, kn2.layers))
+function dot(km1::KernelMachine, km2::KernelMachine)
+    sum(map(dot, km1.layers, km2.layers))
 end

@@ -4,7 +4,7 @@ import LinearAlgebra: dot
 using Flux: @functor, glorot_uniform, Flux
 using Zygote: Buffer
 
-export KernelLayer, KernelMachine, Linear
+export KernelMachine, Linear
 
 include("kernelmachine.jl")
 include("linear.jl")

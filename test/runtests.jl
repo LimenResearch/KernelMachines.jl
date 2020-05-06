@@ -1,4 +1,4 @@
-using KernelMachines
+using KernelMachines: KernelLayer, KernelMachine, radialkernel
 using Test
 using FiniteDiff: finite_difference_gradient
 using Zygote: gradient
@@ -27,7 +27,7 @@ end
 @testset "scalar product" begin
     kl1 = KernelLayer(2 => 3, 10) |> f64
     kl2 = KernelLayer(2 => 3, 10) |> f64
-    ker = KernelMachines.radialkernel(kl1.xs′, transpose(kl2.xs′))
+    ker = radialkernel(kl1.xs′, transpose(kl2.xs′))
     coefs = transpose(kl1.cs) * kl2.cs
     rows1, rows2 = eachrow(kl1.cs), eachrow(kl2.cs)
     d = dot(kl1, kl2)
