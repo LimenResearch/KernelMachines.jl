@@ -2,7 +2,7 @@ using Plots, KernelMachines
 using Plots.Measures
 using Optim
 using Zygote: gradient
-using Flux, LinearAlgebra
+using Flux, LinearAlgebra, Statistics
 using Random: seed!
 seed!(0)
 
@@ -20,11 +20,11 @@ ps, re = Flux.destructure(model)
 
 function f(ps, cost)
     model = re(ps)
-    s = sum(abs2, vec(model(permutedims(xs))) - ys)
+    s = mean(abs2, vec(model(permutedims(xs))) - ys)
     return s + cost * sum(dot(l, l) for l in model.layers)
 end
 
-costs = [1, 5, 10]
+costs = [0.01, 0.05, 0.1]
 results = map(costs) do c
     func = ps -> f(ps, c)
     func! = (G, ps) -> (G .= only(gradient(func, ps)))
