@@ -17,8 +17,8 @@ end
 @testset "networks" begin
     kn = KernelMachine((2, 3, 3, 2), 20)
     ps, re = destructure(kn)
-    v = rand(10, 20)
-    _f = ps -> sum(re(ps)(v))
+    v = (rand(2, 20), rand(3, 20), rand(3, 20), rand(2, 20))
+    _f = ps -> sum(sum, re(ps)(v))
     gs_auto = only(gradient(_f, ps))
     gs_num = finite_difference_gradient(_f, ps)
     @test isapprox(gs_auto, gs_num, rtol=1e-4)
@@ -27,7 +27,7 @@ end
 @testset "scalar product" begin
     kl1 = KernelLayer(2 => 3, 10) |> f64
     kl2 = KernelLayer(2 => 3, 10) |> f64
-    ker = radialkernel(kl1.xs′, transpose(kl2.xs′))
+    ker = radialkernel(kl1.xs, kl2.xs)
     coefs = transpose(kl1.cs) * kl2.cs
     rows1, rows2 = eachrow(kl1.cs), eachrow(kl2.cs)
     d = dot(kl1, kl2)
@@ -39,12 +39,12 @@ end
     @test d ≈ d3
     # test gradient of dot product numerically
     gs = gradient(dot, kl1, kl2)
-    xs1 = finite_difference_gradient(v -> dot(KernelLayer(v, kl1.cs), kl2), kl1.xs′)
-    @test isapprox(gs[1].xs′, xs1, rtol=1e-4)
-    cs1 = finite_difference_gradient(v -> dot(KernelLayer(kl1.xs′, v), kl2), kl1.cs)
+    xs1 = finite_difference_gradient(v -> dot(KernelLayer(v, kl1.cs), kl2), kl1.xs)
+    @test isapprox(gs[1].xs, xs1, rtol=1e-4)
+    cs1 = finite_difference_gradient(v -> dot(KernelLayer(kl1.xs, v), kl2), kl1.cs)
     @test isapprox(gs[1].cs, cs1, rtol=1e-4)
-    xs2 = finite_difference_gradient(v -> dot(KernelLayer(v, kl2.cs), kl1), kl2.xs′)
-    @test isapprox(gs[2].xs′, xs2, rtol=1e-4)
-    cs2 = finite_difference_gradient(v -> dot(KernelLayer(kl2.xs′, v), kl1), kl2.cs)
-    @test isapprox(gs[2].xs′, xs2, rtol=1e-4)
+    xs2 = finite_difference_gradient(v -> dot(KernelLayer(v, kl2.cs), kl1), kl2.xs)
+    @test isapprox(gs[2].xs, xs2, rtol=1e-4)
+    cs2 = finite_difference_gradient(v -> dot(KernelLayer(kl2.xs, v), kl1), kl2.cs)
+    @test isapprox(gs[2].xs, xs2, rtol=1e-4)
 end

@@ -1,12 +1,15 @@
 module KernelMachines
 
+using Random, Statistics
 import LinearAlgebra: dot
-using Flux: @functor, glorot_uniform, Flux
-using Zygote: Buffer
+using Base: front, tail
+using Zygote: gradient
+using Flux: @functor, glorot_uniform, params, update!, ADAM, Flux
+using Optim: optimize, minimizer
 
-export KernelMachine, Linear
+export KernelMachine, KernelLayer
 
 include("kernelmachine.jl")
-include("linear.jl")
+include("regression.jl")
 
 end # module
