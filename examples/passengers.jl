@@ -21,13 +21,11 @@ Y_test = Y[:, test]
 
 ##
 
-Aug_train = vcat(permutedims(train ./ std(1:11)), X_train)
-Aug_test = vcat(permutedims(test ./ std(1:11)), X_test)
+kr = KernelMachines.fit(X_train, Y_train,
+    dims = ntuple(_ -> 2, 16), cost = 2e-3)
 
-kr = KernelMachines.fit(Aug_train, Y_train, dims = (1, ntuple(_ -> 1, 24)...), cost = 0.1)
-
-res_train = KernelMachines.predict(kr, Aug_train)
-res_test = KernelMachines.predict(kr, Aug_test)
+res_train = KernelMachines.predict(kr, X_train)
+res_test = KernelMachines.predict(kr, X_test)
 
 ##
 

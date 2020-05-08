@@ -12,9 +12,8 @@ end
 
 @functor KernelLayer
 
-radialkernel(u, v) = radialkernel_add(u, v, false)
-
-function radialkernel_add(u, v, ker)
+function radialkernel(u, v, k=nothing)
+    ker = something(k, false)
     u′ = transpose(u)
     u′² = sum(abs2.(u′), dims=2)
     v² = sum(abs2.(v), dims=1)
@@ -22,16 +21,15 @@ function radialkernel_add(u, v, ker)
     @. exp(u′v - u′² / 2  - v² / 2) + ker
 end
 
-function (kl::KernelLayer)(maybe, v)
+function (kl::KernelLayer)(k, v)
     xs, cs = something(kl.xs, v), kl.cs
-    k = something(maybe, false)
-    ker = radialkernel_add(xs, v, k)
+    ker = radialkernel(xs, v, k)
     return ker, cs * ker
 end
 
-function dot(kl1::KernelLayer, kl2::KernelLayer)
-    ker = radialkernel(kl1.xs, kl2.xs)
-    return dot(kl1.cs * ker, kl2.cs)
+function dot(kl1::KernelLayer, kl2::KernelLayer, k=nothing)
+    _, val = kl1(k, kl2.xs)
+    return dot(val, kl2.cs)
 end
 
 struct KernelMachine{S, T, N}
@@ -53,19 +51,29 @@ end
 
 @functor KernelMachine
 
+# return results and partial cs * ker
 function consume(layers, m)
-    init = (nothing, (first(m),), 1)
-    _, res, _ = foldl(layers, init=init) do (k, r, i), layer
+    init = (nothing, (first(m),), (), 1)
+    _, res, vals, _ = foldl(layers, init=init) do (k, r, v, i), layer
         k̂, val = layer(k, last(r))
         î = i + 1
         r̂ = (r..., m[î] + val)
-        return k̂, r̂, î
+        v̂ = (v..., val)
+        return k̂, r̂, v̂, î
     end
+    return res, vals
+end
+
+function (km::KernelMachine)(m::Tuple)
+    res, _ = consume(km.layers, m)
     return res
 end
 
-(km::KernelMachine)(m::Tuple) = consume(km.layers, m)
-
 function dot(km1::KernelMachine, km2::KernelMachine)
-    sum(map(dot, km1.layers, km2.layers))
+    itr = zip(km1.layers, km2.layers)
+    _, s = foldl(itr, init=(nothing, false)) do (k, acc), (l1, l2)
+        k̂, v = l1(k, l2.xs)
+        return k̂, acc + dot(v, l2.cs)
+    end
+    return s
 end

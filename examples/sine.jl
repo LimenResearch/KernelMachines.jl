@@ -12,7 +12,7 @@ us = range(extrema(xs)...; step = 0.1)
 inputs = permutedims(xs)
 outputs = permutedims(ys)
 
-kr = KernelMachines.fit(inputs, outputs, dims=(1, 2, 2, 2, 1), cost=10)
+kr = KernelMachines.fit(inputs, outputs, dims=(1, 2, 2, 2, 1), cost=0.005)
 
 res = KernelMachines.predict(kr, us')'
 vs = res

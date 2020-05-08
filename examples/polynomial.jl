@@ -12,11 +12,11 @@ f((x, y)) = f(x, y)
 
 _zeros(t, i) = zeros(Float32, i, size(t, 2))
 model_kernel = Chain(
-    t -> (t, _zeros(t, 3), _zeros(t, 3), _zeros(t, 3), _zeros(t, 1)),
-    KernelMachine((2, 3, 3, 3, 1), 30),
+    t -> (t, _zeros(t, 2), _zeros(t, 2), _zeros(t, 1)),
+    KernelMachine((2, 2, 2, 1), 6),
     last
 )
-model_perceptron = Chain(Dense(2, 8, relu), Dense(8, 16, relu), Dense(16, 16, relu), Dense(16, 8, relu), Dense(8, 1))
+model_perceptron = Chain(Dense(2, 6, relu), Dense(6, 6, relu), Dense(6, 1))
 
 model_kernel(rand(Float32, 2, 10))
 model_perceptron(rand(Float32, 2, 10))
@@ -27,16 +27,12 @@ outputs = map(f, eachcol(inputs)) |> permutedims
 inputs′ = rand(Float32, 2, N)
 outputs′ = map(f, eachcol(inputs′)) |> permutedims
 
-_dot(m1::Dense, m2::Dense) = dot(m1.W, m2.W) + dot(m1.b, m2.b)
-_dot(a, b) = dot(a, b)
-_dot(::Function, ::Function) = false
-
 function train!(model, inputs, outputs, inputs′, outputs′)
     ps = params(model)
     opt = ADAM(0.002)
     for i in 1:N
         gs = gradient(ps) do
-            mean(abs2, model(inputs) - outputs) + 1f-2 * sum(_dot(l, l) for l in model.layers)
+            mean(abs2, model(inputs) - outputs)
         end
         Flux.update!(opt, ps, gs)
     end
@@ -45,8 +41,8 @@ function train!(model, inputs, outputs, inputs′, outputs′)
     return (loss_train, loss_test)
 end
 
-loss_kernel = [train!(model_kernel, inputs, outputs, inputs′, outputs′) for i in 1:200]
-loss_perceptron = [train!(model_perceptron, inputs, outputs, inputs′, outputs′) for i in 1:200]
+loss_kernel = [train!(model_kernel, inputs, outputs, inputs′, outputs′) for i in 1:500]
+loss_perceptron = [train!(model_perceptron, inputs, outputs, inputs′, outputs′) for i in 1:500]
 
 ##
 
@@ -58,10 +54,11 @@ theme(:wong)
 default(legendfont=14, tickfont=14, guidefont=14, titlefont=18, size=(800, 600))
 
 plot([last.(loss_kernel) last.(loss_perceptron)], label = ["Kernel Machine" "Multilayer Perceptron"],
-    xlabel = "Epoch", ylabel = "MSE", linewidth=2, bottom_margin=5mm, ylims=(0, 0.05))
+    xlabel = "Epoch", ylabel = "MSE", linewidth=2, bottom_margin=5mm,
+    yscale = :log10)
 
 plot!([first.(loss_kernel) first.(loss_perceptron)], color = permutedims(wong_palette[1:2]),
-    label = "", linestyle = :dash, linewidth=2)
+    label = "", linestyle = :dash, linewidth=2, yscale=:log10)
 
 ##
 
