@@ -68,7 +68,7 @@ function consume(layers, m)
     _, res, vals, _ = foldl(layers, init=init) do (k, r, v, i), layer
         k̂, val = layer(k, last(r))
         î = i + 1
-        r̂ = (r..., m[î] + val)
+        r̂ = (r..., add(m[î], val))
         v̂ = (v..., val)
         return k̂, r̂, v̂, î
     end

@@ -9,15 +9,15 @@ by_year = reshape(passengers, 12, 12)
 X = by_year[:, 1:11]
 Y = by_year[:, 2:12]
 
-# Must train on extrema, as kernel methods cannot extrapolate
-train = [1, 2, 4, 5, 7, 8, 10, 11]
-test = [3, 6, 9]
+# Must train_year on extrema, as kernel methods cannot extrapolate
+train_year = [1, 2, 4, 5, 7, 8, 10, 11]
+test_year = [3, 6, 9]
 
-X_train = X[:, train]
-Y_train = Y[:, train]
+X_train = X[:, train_year]
+Y_train = Y[:, train_year]
 
-X_test = X[:, test]
-Y_test = Y[:, test]
+X_test = X[:, test_year]
+Y_test = Y[:, test_year]
 
 ##
 
@@ -34,7 +34,7 @@ theme(:wong)
 default(legendfont=14, tickfont=14, guidefont=14, size=(800, 600))
 
 plt = plot(passengers, color="black", legend=false, linewidth=2)
-train_idxs = map(i -> div(i-1, 12) + 1 in train, 1:132)
+train_idxs = map(i -> div(i-1, 12) + 1 in train_year, 1:132)
 test_idxs = map(!, train_idxs)
 res = zeros(132)
 res[train_idxs] .= vec(res_train)

@@ -7,9 +7,10 @@ using Zygote: gradient, @adjoint, pullback
 using Flux: @functor, glorot_uniform, Flux
 using Optim: optimize, minimizer, only_fg!, ConjugateGradient
 
-export KernelMachine, KernelLayer
+export KernelMachine, KernelLayer, Splitter, Linear
 
 include("kernelmachine.jl")
 include("regression.jl")
+include("extras.jl")
 
 end # module
