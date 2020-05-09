@@ -8,7 +8,7 @@ using LinearAlgebra
 @testset "layers" begin
     kl = KernelLayer(2 => 3, 10)
     v = rand(2)
-    _f = v -> sum(last(kl(true, v)))
+    _f = v -> sum(last(kl(nothing, v)))
     gs_auto = only(gradient(_f, v))
     gs_num = finite_difference_gradient(_f, v)
     @test isapprox(gs_auto, gs_num, rtol=1e-6)

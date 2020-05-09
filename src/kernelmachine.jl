@@ -12,18 +12,29 @@ end
 
 @functor KernelLayer
 
-function radialkernel(u, v, k=nothing)
-    ker = something(k, false)
-    u′ = transpose(u)
-    u′² = sum(abs2.(u′), dims=2)
-    v² = sum(abs2.(v), dims=1)
-    u′v = u′ * v
-    @. exp(u′v - u′² / 2  - v² / 2) + ker
+function radialkernel(u, v)
+    u2 = sum(abs2, u, dims=1)
+    v2 = sum(abs2, v, dims=1)
+    exp.(u' * v .- u2' ./ 2 .- v2 ./ 2)
 end
+
+@adjoint function radialkernel(u, v)
+    val = radialkernel(u, v)
+    back = function (m)
+        a = m .* val
+        û = v * a' - sum(a', dims=1) .* u
+        v̂ = u * a - sum(a, dims=1) .* v
+        return û, v̂
+    end
+    return val, back
+end
+
+add(::Nothing, t) = t
+add(s, t) = s + t
 
 function (kl::KernelLayer)(k, v)
     xs, cs = something(kl.xs, v), kl.cs
-    ker = radialkernel(xs, v, k)
+    ker = add(k, radialkernel(xs, v))
     return ker, cs * ker
 end
 
