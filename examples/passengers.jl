@@ -21,11 +21,11 @@ Y_test = Y[:, test_year]
 
 ##
 
-kr = KernelMachines.fit(X_train, Y_train,
+kr = fit(KernelRegression, X_train, Y_train,
     dims = ntuple(_ -> 2, 16), cost = 2e-3)
 
-res_train = KernelMachines.predict(kr, X_train)
-res_test = KernelMachines.predict(kr, X_test)
+res_train = predict(kr, X_train)
+res_test = predict(kr, X_test)
 
 ##
 

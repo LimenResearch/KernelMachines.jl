@@ -53,8 +53,13 @@ function KernelMachine(dims::Tuple, n)
     return KernelMachine(layers)
 end
 
-function KernelMachine(fkm::KernelMachine, res::Tuple)
-    ls = map(fkm.layers, front(res)) do l, xs
+function KernelMachine(css::NTuple{N, AbstractArray}) where N
+    layers = map(cs -> KernelLayer(nothing, cs), css)
+    return KernelMachine(layers)
+end
+
+function KernelMachine(km::KernelMachine, res::Tuple)
+    ls = map(km.layers, front(res)) do l, xs
         KernelLayer(xs, l.cs)
     end
     return KernelMachine(ls)

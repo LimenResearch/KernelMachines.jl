@@ -1,31 +1,23 @@
-struct KernelRegression{S, T, N}
-    X::S
-    C::T
-    rgs::NTuple{N, UnitRange{Int}}
-    in::Int
-    out::Int
+struct KernelRegression{S, T, M}
+    input::S
+    output::T
+    machine::M
+    result::OptimizationResults
 end
 
-function KernelMachine(kr::KernelRegression)
-    rgs = kr.rgs
-    Xs = map(front(rgs)) do rg
-        X = kr.X
-        isnothing(X) ? nothing : X[rg, :]
+function get_dims(km::KernelMachine)
+    layers = km.layers
+    init = (size(first(layers).xs, 1),)
+    foldl(layers, init=init) do acc, layer
+        (acc..., size(layer.cs, 1))
     end
-    dim = last(first(rgs))
-    Cs = map(rg -> kr.C[rg .- dim, :], tail(rgs))
-    layers = map(KernelLayer, Xs, Cs)
-    return KernelMachine(layers)
 end
 
-function (kr::KernelRegression)(input)
-    km = KernelMachine(kr)
-    inputs = map(rg -> input[rg, :], kr.rgs)
-    return vcat(km(inputs)...)
-end
-    
-function KernelRegression(kr::KernelRegression, R)
-    KernelRegression(R, kr.C, kr.rgs, kr.in, kr.out)
+function adjust(X, dims)
+    s1, s2 = size(X)
+    M = fill!(similar(X, sum(dims), s2), 0)
+    M[1:s1, :] .= X
+    return M
 end
 
 function ranges(dims)
@@ -35,40 +27,63 @@ function ranges(dims)
     end
 end
 
-function fit(X, Y, alg=ConjugateGradient(); dims, cost, kwargs...)
-    s1, s2 = size(X)
-    out = size(Y, 1)
-    M = fill!(similar(X, sum(dims), s2), 0)
-    M[1:s1, :] .= X
+function fit(
+    ::Type{<:KernelRegression},
+    X::AbstractArray,
+    Y::AbstractArray,
+    alg=ConjugateGradient();
+    dims,
+    cost,
+    kwargs...)
+
     rgs = ranges(dims)
+    M = adjust(X, dims)
     Ms = map(rg -> M[rg, :], rgs)
-    C = similar(M, size(M, 1) - first(dims), size(M, 2))
+
+    dim = first(dims)
+    C = similar(M, size(M, 1) - dim, size(M, 2))
     C .= glorot_uniform(size(C)...)
-    f = function (c)
-        kr = KernelRegression(nothing, c, rgs, s1, out)
-        km = KernelMachine(kr)
-        res, vals = consume(km.layers, Ms)
-        R = vcat(res...)
-        err = mean(abs2, R[end+1-size(Y, 1):end, :] - Y)
-        sq = sum(map(dot, vals, map(t -> t.cs, km.layers)))
-        return err + cost * sq
+    Cs = map(rg -> C[rg .- dim, :], tail(rgs))
+
+    function loss(Cs...)
+        km = KernelMachine(Cs)
+        r, vals = consume(km.layers, Ms)
+        R = vcat(r...) # TODO make more efficient
+        Ŷ = R[end + 1 - size(Y, 1):end, :]
+        err = mean(abs2, Ŷ - Y)
+        norm² = sum(map(dot, vals, Cs))
+        return err + cost * norm²
     end
-    function fg!(_, G, c)
-        isnothing(G) && return f(c)
-        res, back = pullback(f, c)
-        g, = back(one(res))
-        copyto!(G, g)
-        return res
+    
+    function fg!(_, G, w)
+        copy!(Params(Cs), w)
+        if isnothing(G)
+            l = loss(Cs...)
+        else
+            l, back = pullback(loss, Cs...)
+            gs = back(one(l))
+            copy!(G, Params(gs))
+        end
+        return l
     end
-    res = optimize(only_fg!(fg!), C, alg; kwargs...)
-    kr_opt = KernelRegression(nothing, minimizer(res), rgs, s1, out)
-    return KernelRegression(kr_opt, kr_opt(M))
+
+    res = optimize(only_fg!(fg!), vec(C), alg; kwargs...)
+    pkm = KernelMachine(Cs)
+    km = KernelMachine(pkm, pkm(Ms))
+    return KernelRegression(X, Y, km, res)
 end
 
-function predict(kr::KernelRegression, X)
-    t1 = last(last(kr.rgs))
-    s1, s2 = size(X)
-    zs = zero(similar(X, t1-s1, s2))
-    R = kr(vcat(X, zs))
-    return R[end+1-kr.out:end, :]
+function predict(kr::KernelRegression, X=kr.input)
+    
+    km = kr.machine
+    dims = get_dims(km)
+    M = adjust(X, dims)
+
+    rgs = ranges(dims)
+    Ms = map(rg -> M[rg, :], rgs)
+
+    r = km(Ms)
+    R = vcat(r...)
+    sz = size(kr.output, 1)
+    return R[end+1-sz:end, :]
 end
