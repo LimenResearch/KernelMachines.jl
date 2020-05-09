@@ -35,7 +35,7 @@ function ranges(dims)
     end
 end
 
-function fit(X, Y, args...; dims, cost, kwargs...)
+function fit(X, Y, alg=ConjugateGradient(); dims, cost, kwargs...)
     s1, s2 = size(X)
     out = size(Y, 1)
     M = fill!(similar(X, sum(dims), s2), 0)
@@ -44,7 +44,7 @@ function fit(X, Y, args...; dims, cost, kwargs...)
     Ms = map(rg -> M[rg, :], rgs)
     C = similar(M, size(M, 1) - first(dims), size(M, 2))
     C .= glorot_uniform(size(C)...)
-    func = function (c)
+    f = function (c)
         kr = KernelRegression(nothing, c, rgs, s1, out)
         km = KernelMachine(kr)
         res, vals = consume(km.layers, Ms)
@@ -53,11 +53,14 @@ function fit(X, Y, args...; dims, cost, kwargs...)
         sq = sum(map(dot, vals, map(t -> t.cs, km.layers)))
         return err + cost * sq
     end
-    func! = function (G, x)
-        g, = gradient(func, x)
+    function fg!(_, G, c)
+        isnothing(G) && return f(c)
+        res, back = pullback(f, c)
+        g, = back(one(res))
         copyto!(G, g)
+        return res
     end
-    res = optimize(func, func!, C, args...; kwargs...)
+    res = optimize(only_fg!(fg!), C, alg; kwargs...)
     kr_opt = KernelRegression(nothing, minimizer(res), rgs, s1, out)
     return KernelRegression(kr_opt, kr_opt(M))
 end
