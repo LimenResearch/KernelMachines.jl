@@ -4,9 +4,9 @@ struct KernelLayer{S, T}
 end
 
 KernelLayer(p::Pair, n::Integer) = KernelLayer(Tuple(p), n)
-function KernelLayer((a, b)::Tuple, n::Integer)
-    xs = glorot_uniform(a, n)
-    cs = glorot_uniform(b, n)
+function KernelLayer((in, out)::Tuple, n::Integer)
+    xs = glorot_uniform(in, n)
+    cs = glorot_uniform(out, n)
     return KernelLayer(xs, cs)
 end
 
