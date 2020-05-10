@@ -10,7 +10,10 @@ using Optim: optimize,
              minimizer,
              only_fg!,
              ConjugateGradient,
-             OptimizationResults
+             OptimizationResults,
+             AbstractOptimizer,
+             Options,
+             default_options
 
 export KernelMachine, KernelLayer
 export Splitter, Linear

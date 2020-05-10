@@ -31,10 +31,32 @@ function fit(
     ::Type{<:KernelRegression},
     X::AbstractArray,
     Y::AbstractArray,
-    alg=ConjugateGradient();
+    args...;
     dims,
-    cost,
-    kwargs...)
+    cost)
+    
+    krfit(X, Y, args...; dims=dims, cost=cost)
+end
+
+const default_method = ConjugateGradient()
+
+function krfit(
+    X::AbstractArray,
+    Y::AbstractArray,
+    options::Options;
+    dims,
+    cost)
+
+    krfit(X, Y, default_method, options; dims=dims, cost=cost)
+end
+
+function krfit(
+    X::AbstractArray,
+    Y::AbstractArray,
+    method::AbstractOptimizer=default_method,
+    options::Options=Options(; default_options(method)...);
+    dims,
+    cost)
 
     rgs = ranges(dims)
     M = adjust(X, dims)
@@ -67,7 +89,7 @@ function fit(
         return l
     end
 
-    res = optimize(only_fg!(fg!), vec(C), alg; kwargs...)
+    res = optimize(only_fg!(fg!), vec(C), method, options)
     pkm = KernelMachine(Cs)
     km = KernelMachine(pkm, pkm(Ms))
     return KernelRegression(X, Y, km, res)
