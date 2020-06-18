@@ -32,10 +32,10 @@ function consume(kernel, xss, css, indices=axes(first(xss), 2))
     sn = zero(eltype(res))
     # Iteratively update k (kernel), res (result so far), and sn (square norm)
     for (xs, cs) in zip(tail(xss), css)
-        k = kernel(k, selectdim(res, 2, indices), res)
+        k = kernel(k, res[:, indices], res)
         val = cs * k
         res = xs + val
-        sn += dot(selectdim(val, 2, indices), cs)
+        sn += dot(val[:, indices], cs)
     end
     return res, sn
 end
