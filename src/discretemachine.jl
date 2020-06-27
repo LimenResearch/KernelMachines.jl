@@ -16,7 +16,7 @@ end
 end
 
 radialkernel(k::Nothing, u, v) = radialkernel(u, v)
-radialkernel(k, u, v) = k .+ radialkernel(u, v)
+radialkernel(k, u, v) = k + radialkernel(u, v)
 
 # TODO: make @functor and add simpler constructor
 struct DiscreteMachine{A, D, K, V, N}
