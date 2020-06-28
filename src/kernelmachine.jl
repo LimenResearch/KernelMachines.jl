@@ -1,23 +1,3 @@
-function radialkernel(u, v)
-    u2 = sum(abs2, u, dims=1)
-    v2 = sum(abs2, v, dims=1)
-    exp.(u' * v .- u2' ./ 2 .- v2 ./ 2)
-end
-
-@adjoint function radialkernel(u, v)
-    val = radialkernel(u, v)
-    back = function (m)
-        a = m .* val
-        û = v * a' - sum(a', dims=1) .* u
-        v̂ = u * a - sum(a, dims=1) .* v
-        return û, v̂
-    end
-    return val, back
-end
-
-radialkernel(k::Nothing, u, v) = radialkernel(u, v)
-radialkernel(k, u, v) = k + radialkernel(u, v)
-
 # TODO: make @functor and trainable
 # TODO: what if `kernel` is operator-valued?
 struct KernelMachine{K, M<:AbstractMatrix, N}

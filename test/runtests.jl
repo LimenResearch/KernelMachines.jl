@@ -1,4 +1,4 @@
-using KernelMachines: KernelMachine
+using KernelMachines
 using Test
 using FiniteDiff: finite_difference_gradient
 using Zygote: gradient

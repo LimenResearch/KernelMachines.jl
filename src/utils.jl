@@ -1,3 +1,4 @@
+# TODO: slice versus view, issue with CuArrays dispatch
 function slice(mat::AbstractMatrix, list::Dims)
     map(cumsum(list), list) do post, diff
         pre = post - diff + 1
