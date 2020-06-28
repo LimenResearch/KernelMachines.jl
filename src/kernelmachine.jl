@@ -18,7 +18,7 @@ end
 radialkernel(k::Nothing, u, v) = radialkernel(u, v)
 radialkernel(k, u, v) = k + radialkernel(u, v)
 
-# TODO: make @functor and add simpler constructor
+# TODO: make @functor and trainable
 # TODO: what if `kernel` is operator-valued?
 struct KernelMachine{K, M<:AbstractMatrix, N}
     kernel::K
@@ -28,13 +28,12 @@ struct KernelMachine{K, M<:AbstractMatrix, N}
     dims::NTuple{N, Int}
 end
 
-function KernelMachine(kernel, data::AbstractMatrix{T}; dims, init=rand) where T
+function KernelMachine(kernel, data::M; dims, init=glorot_uniform) where M
     augmenter_size = sum(dims)
     cs_size = augmenter_size - first(dims)
-    augmenter = init(T, augmenter_size, size(data, 1))
-    cs = init(T, cs_size, size(data, 2))
-    d = convert(typeof(cs), data)
-    return KernelMachine(kernel, augmenter, d, cs, dims)
+    augmenter::M = init(augmenter_size, size(data, 1))
+    cs::M = init(cs_size, size(data, 2))
+    return KernelMachine(kernel, augmenter, data, cs, dims)
 end
 
 KernelMachine(data; kwargs...) = KernelMachine(radialkernel, data; kwargs...)

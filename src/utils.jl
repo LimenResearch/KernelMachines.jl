@@ -4,3 +4,6 @@ function slice(mat::AbstractMatrix, list::Dims)
         return mat[pre:post, :]
     end
 end
+
+# from Flux
+glorot_uniform(dims...) = (rand(dims...) .- 0.5) .* sqrt(24 / sum(dims))
