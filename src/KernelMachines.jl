@@ -1,6 +1,5 @@
 module KernelMachines
 
-using Base: tail
 using LinearAlgebra: dot
 using ZygoteRules: @adjoint
 

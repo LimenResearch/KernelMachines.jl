@@ -19,19 +19,19 @@ radialkernel(k::Nothing, u, v) = radialkernel(u, v)
 radialkernel(k, u, v) = k + radialkernel(u, v)
 
 # TODO: make @functor and add simpler constructor
-struct KernelMachine{A, D, K, V, N}
+struct KernelMachine{K, A, D, C}
+    kernel::K
     augmenter::A
     data::D
-    kernel::K
-    css::NTuple{N, V}
+    css::Vector{C}
 end
 Base.show(io::IO, d::KernelMachine) = print(io, "KernelMachine {...}")
 
 function consume(kernel, xss, css, indices=axes(first(xss), 2))
-    k, res = nothing, first(xss)
-    sn = zero(eltype(res))
+    res, others = Iterators.peel(xss)
+    k, sn = nothing, zero(eltype(res))
     # Iteratively update k (kernel), res (result so far), and sn (square norm)
-    for (xs, cs) in zip(tail(xss), css)
+    for (xs, cs) in zip(others, css)
         k = kernel(k, res[:, indices], res)
         val = cs * k
         res = xs + val

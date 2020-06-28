@@ -4,10 +4,10 @@ using FiniteDiff: finite_difference_gradient
 using Zygote: gradient
 
 @testset "KernelMachine" begin
-    augs = (rand(2, 5), rand(3, 5), rand(2, 5))
+    augs = [rand(2, 5), rand(3, 5), rand(2, 5)]
     data = rand(5, 10)
     input = rand(5, 50)
-    css = (rand(3, 10), rand(2, 10))
+    css = [rand(3, 10), rand(2, 10)]
     kernel = radialkernel
     augmenter = function (t)
         res = map(v -> v*t, augs)
@@ -16,7 +16,7 @@ using Zygote: gradient
         end
         return res, cost
     end
-    dm = KernelMachine(augmenter, data, kernel, css)
+    dm = KernelMachine(kernel, augmenter, data, css)
     g_auto = gradient(input) do val
         r, n = dm(val)
         return sum(r) + n

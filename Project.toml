@@ -8,8 +8,8 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [compat]
-julia = "1.4"
 ZygoteRules = "0.2.0"
+julia = "1.4"
 
 [extras]
 FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
