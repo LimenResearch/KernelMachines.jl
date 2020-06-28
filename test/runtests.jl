@@ -1,28 +1,19 @@
-using KernelMachines: KernelMachine, radialkernel
+using KernelMachines: KernelMachine
 using Test
 using FiniteDiff: finite_difference_gradient
 using Zygote: gradient
 
 @testset "KernelMachine" begin
-    augs = [rand(2, 5), rand(3, 5), rand(2, 5)]
+    dims = (2, 3, 2)
     data = rand(5, 10)
     input = rand(5, 50)
-    css = [rand(3, 10), rand(2, 10)]
-    kernel = radialkernel
-    augmenter = function (t)
-        res = map(v -> v*t, augs)
-        cost = sum(augs) do aug
-            sum(abs2, aug)
-        end
-        return res, cost
-    end
-    dm = KernelMachine(kernel, augmenter, data, css)
-    g_auto = gradient(input) do val
-        r, n = dm(val)
+    dm = KernelMachine(data; dims=dims)
+    g_auto = gradient(input) do input
+        r, n = dm(input)
         return sum(r) + n
     end
-    g_num = finite_difference_gradient(input) do val
-        r, n = dm(val)
+    g_num = finite_difference_gradient(input) do input
+        r, n = dm(input)
         return sum(r) + n
     end
     @test isapprox(first(g_auto), g_num)
