@@ -1,9 +1,9 @@
-using KernelMachines: DiscreteMachine, radialkernel
+using KernelMachines: KernelMachine, radialkernel
 using Test
 using FiniteDiff: finite_difference_gradient
 using Zygote: gradient
 
-@testset "DiscreteMachine" begin
+@testset "KernelMachine" begin
     augs = (rand(2, 5), rand(3, 5), rand(2, 5))
     data = rand(5, 10)
     input = rand(5, 50)
@@ -16,7 +16,7 @@ using Zygote: gradient
         end
         return res, cost
     end
-    dm = DiscreteMachine(augmenter, data, kernel, css)
+    dm = KernelMachine(augmenter, data, kernel, css)
     g_auto = gradient(input) do val
         r, n = dm(val)
         return sum(r) + n

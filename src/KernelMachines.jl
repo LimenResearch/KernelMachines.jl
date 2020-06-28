@@ -4,8 +4,8 @@ using Base: tail
 using LinearAlgebra: dot
 using ZygoteRules: @adjoint
 
-export DiscreteMachine
+export KernelMachine
 
-include("discretemachine.jl")
+include("kernelmachine.jl")
 
 end # module
