@@ -7,16 +7,17 @@ function radialkernel(u, v)
 end
 
 @adjoint function radialkernel(u, v)
-    val = radialkernel(u, v)
-    back = function (m)
-        a = m .* val
-        û = v * a'
-        @. û -= $sum(a', dims=1) * u
-        v̂ = u * a
-        @. v̂ -= $sum(a, dims=1) * v
-        return û, v̂
+    r = radialkernel(u, v)
+    # ∂r is short for ∂l / ∂r
+    function radialkernel_pullback(∂r)
+        m = r .* ∂r # pullback the exponential
+        ∂u = v * m'
+        ∂u .-= sum(m', dims=1) .* u
+        ∂v = u * m
+        ∂v .-= sum(m, dims=1) .* v
+        return ∂u, ∂v
     end
-    return val, back
+    return r, radialkernel_pullback
 end
 
 radialkernel(k::Nothing, u, v) = radialkernel(u, v)
