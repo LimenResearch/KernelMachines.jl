@@ -8,14 +8,14 @@ end
 
 @adjoint function radialkernel(u, v)
     r = radialkernel(u, v)
-    # ∂r is short for ∂l / ∂r
-    function radialkernel_pullback(∂r)
-        m = r .* ∂r # pullback the exponential
-        ∂u = v * m'
-        ∂u .-= sum(m', dims=1) .* u
-        ∂v = u * m
-        ∂v .-= sum(m, dims=1) .* v
-        return ∂u, ∂v
+    # r̄ is short for ∂l / ∂r
+    function radialkernel_pullback(r̄)
+        m = r .* r̄ # pullback the exponential
+        ū = v * m'
+        ū .-= sum(m', dims=1) .* u
+        v̄ = u * m
+        v̄ .-= sum(m, dims=1) .* v
+        return ū, v̄
     end
     return r, radialkernel_pullback
 end

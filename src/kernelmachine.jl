@@ -33,10 +33,13 @@ function consume(kernel, xss, css, indices=axes(first(xss), 2))
     return res, sn
 end
 
+maybe_hcat(x, ::Nothing) = x
+maybe_hcat(x, y) = hcat(x, y)
+
 function (dm::KernelMachine)(input)
     kernel, augmenter, data, cs, dims = 
         dm.kernel, dm.augmenter, dm.data, dm.cs, dm.dims
-    full = hcat(data, input)
+    full = maybe_hcat(data, input)
     xs = augmenter * full
     cost = sum(abs2, augmenter)
     xss, css = slice(xs, dims), slice(cs, tail(dims))
