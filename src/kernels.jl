@@ -1,3 +1,32 @@
+abstract type AbstractKernel end
+
+(ker::AbstractKernel)(u, v) = compute(ker, u, v)
+
+(ker::AbstractKernel)(::Nothing, u, v) = ker(u, v)
+
+function (ker::AbstractKernel)(k1, u, v)
+    k2 = compute(ker, u, v)
+    return combine(ker, k1, k2)
+end
+
+# Example AbstractKernels
+
+struct AdditiveRadialKernel <: AbstractKernel; end
+
+const additiveradialkernel = AdditiveRadialKernel()
+
+combine(::AdditiveRadialKernel, k1, k2) = k1 + k2
+
+compute(::AdditiveRadialKernel, u, v) = radialkernel(u, v)
+
+struct MultiplicativeRadialKernel <: AbstractKernel; end
+
+combine(::MultiplicativeRadialKernel, k1, k2) = k1 .* k2
+
+compute(::MultiplicativeRadialKernel, u, v) = radialkernel(u, v)
+
+const multiplicativeradialkernel = MultiplicativeRadialKernel()
+
 function radialkernel(u, v)
     uu = sum(abs2, u, dims=1)
     vv = sum(abs2, v, dims=1)
@@ -19,6 +48,3 @@ end
     end
     return r, radialkernel_pullback
 end
-
-radialkernel(k::Nothing, u, v) = radialkernel(u, v)
-radialkernel(k, u, v) = k + radialkernel(u, v)

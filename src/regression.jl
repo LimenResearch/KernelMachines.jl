@@ -1,74 +1,27 @@
-mutable struct KernelRegression{M, O, C}
-    machine::M
+mutable struct KernelRegression{K, I, O, C}
+    kernel::K
+    input::I
     output::O
+    cs::Union{Nothing, O}
     cost::C
-    result::Union{OptimizationResults, Nothing}
 end
 
 function KernelRegression(X::AbstractArray, Y::AbstractArray;
-    kernel=radialkernel, cost=0, dims)
+    kernel=radialkernel, cost=0)
 
-    machine = KernelMachine(kernel, permutedims(X); dims=(dims..., size(Y, 2)))
-    output = permutedims(Y)
-    return KernelRegression(machine, output, cost, nothing)
+    return KernelRegression(kernel, X, Y, nothing, cost)
 end
 
-Base.show(io::IO, d::KernelRegression) = print(io, "KernelRegression {...}")
+function fit!(kr::KernelRegression)
 
-loss(k::KernelRegression) = loss(k.machine, k.output, k.cost)
+    input, output, kernel, cost = kr.input, kr.output, kr.kernel, kr.cost
+    m = kernel(input', input')
+    m += cost * size(input, 1) * I
 
-function loss(km::KernelMachine, output, cost)
-    pred, sq_norm = km(nothing)
-    mean(abs2, pred - output) + cost * sq_norm
+    kr.cs = m \ output
+    return kr
 end
 
-function updatemachine!(k::KernelRegression, w)
-    km = k.machine
-    aug, cs = km.augmenter, km.cs
-    n_aug, n_cs = length(aug), length(cs)
-    copyto!(aug, 1, w, 1, n_aug)
-    copyto!(cs, 1, w, n_aug + 1, n_cs)
-    return
-end
-
-function compute_fg(k::KernelRegression)
-    function fg!(_, G, w)
-        updatemachine!(k, w)
-        if isnothing(G)
-            l = loss(k)
-        else
-            l, back = pullback(loss, k.machine, k.output, k.cost)
-            gs, = back(one(l))
-            copyto!(G, gs.augmenter)
-            copyto!(G, length(gs.augmenter) + 1, gs.cs)
-        end
-        return l
-    end
-end
-
-const default_method = ConjugateGradient()
-
-function fit!(k::KernelRegression,
-    method::AbstractOptimizer=default_method,
-    options::Options=Options(; default_options(method)...))
-
-    fg! = compute_fg(k)
-    aug, cs = k.machine.augmenter, k.machine.cs
-    init = vcat(vec(aug), vec(cs))
-    res = optimize(only_fg!(fg!), init, method, options)
-    updatemachine!(k, minimizer(res))
-    k.result = res
-    return k
-end
-
-function predict(k::KernelRegression, input=nothing)
-    km = k.machine
-    if isnothing(input)
-        res, _ = km(nothing)
-    else
-        nsamples = size(km.data, 2)
-        res_full, _ = km(permutedims(input))
-        res = res_full[:, nsamples+1:end]
-    end
-    return permutedims(res)
+function predict(kr::KernelRegression, input=kr.input)
+    return kr.kernel(input', kr.input') * kr.cs
 end

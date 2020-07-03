@@ -16,7 +16,9 @@ function KernelMachine(kernel, data::M; dims, init=glorot_uniform) where M
     return KernelMachine(kernel, augmenter, data, cs, dims)
 end
 
-KernelMachine(data; kwargs...) = KernelMachine(radialkernel, data; kwargs...)
+function KernelMachine(data; kwargs...)
+    KernelMachine(additiveradialkernel, data; kwargs...)
+end
 
 Base.show(io::IO, d::KernelMachine) = print(io, "KernelMachine {...}")
 
