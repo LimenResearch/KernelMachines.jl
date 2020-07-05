@@ -11,6 +11,7 @@ ENV["GKSwstype"] = "100"
 
 makedocs(
     sitename="Kernel Machines",
+    repo = "https://gitlab.com/VEOS-research/KernelMachines.jl/blob/{commit}{path}#{line}",
     pages = [
         "index.md",
         "kernels.md",

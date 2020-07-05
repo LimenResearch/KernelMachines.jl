@@ -24,6 +24,8 @@ Julia 1.5:
 pages:
   image: julia:1.5
   stage: deploy
+  before_script:
+  - apk update && apk add git
   script:
     - |
       julia --project=docs -e '
@@ -36,5 +38,5 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - master
+  # only:
+  #   - master
