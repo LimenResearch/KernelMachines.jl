@@ -25,7 +25,7 @@ pages:
   image: julia:1.5
   stage: deploy
   before_script:
-  - apk update && apk add git
+  - git --version
   script:
     - |
       julia --project=docs -e '
