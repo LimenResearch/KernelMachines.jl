@@ -6,7 +6,7 @@ mutable struct KernelMachineRegression{M, O, C}
 end
 
 function KernelMachineRegression(X::AbstractArray, Y::AbstractArray;
-    kernel=additiveradialkernel, cost=0, dims)
+    kernel=additivegaussiankernel, cost=0, dims)
 
     machine = KernelMachine(kernel, permutedims(X); dims=(dims..., size(Y, 2)))
     output = permutedims(Y)

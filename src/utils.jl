@@ -8,3 +8,9 @@ end
 
 # from Flux
 glorot_uniform(dims...) = (rand(dims...) .- 0.5) .* sqrt(24 / sum(dims))
+
+# exclude `nothing` args
+function notnothing(f, args...)
+    notnothing_args = filter(!isnothing, args)
+    return f(notnothing_args...)
+end

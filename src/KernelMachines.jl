@@ -17,7 +17,7 @@ import StatsBase: fit!, predict
 
 export KernelMachine, KernelRegression, KernelMachineRegression
 
-export additiveradialkernel, multiplicativeradialkernel
+export additivegaussiankernel, multiplicativegaussiankernel, gaussiankernel
 
 include("utils.jl")
 include("kernels.jl")
