@@ -12,12 +12,12 @@ julia> Pkg.add(url="https://gitlab.com/VEOS-research/KernelMachines.jl")
 
 in the Julia REPL.
 
-To run the examples, you will also need to install StatsBase and Plots:
+To run the examples, you will also need to install Plots:
 
 ```julia
 julia> import Pkg
 
-julia> Pkg.add(["StatsBase", "Plots"])
+julia> Pkg.add("Plots")
 ```
 
 !!! warning

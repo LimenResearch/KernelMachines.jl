@@ -3,7 +3,7 @@
 # First, let us load the relevant packages and define our problem.
 # We want to interpolate a noisy version of `sin(x²/2)`.
 
-using KernelMachines, StatsBase, Plots
+using KernelMachines, Statistics, Plots
 
 func(x) = sin(x^2 / 2)
 xs = 8 .* rand(100)

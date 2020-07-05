@@ -3,7 +3,7 @@
 # First, let us load the relevant packages and define our problem.
 # We want to interpolate a simple polynomial: `(2x-1)² + 2y + xy - 3`.
 
-using KernelMachines, StatsBase, Plots
+using KernelMachines, Statistics, Plots
 
 f(x, y) = (2x-1)^2 + 2y + x * y - 3
 f((x, y)) = f(x, y)
