@@ -24,6 +24,8 @@ Julia 1.5:
 pages:
   image: julia:1.5
   stage: deploy
+  before_script:
+  - apt-get -qq update; apt-get -y install git
   script:
     - |
       julia --project=docs -e '
