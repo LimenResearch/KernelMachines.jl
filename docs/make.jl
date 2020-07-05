@@ -14,6 +14,7 @@ makedocs(
     repo = "https://gitlab.com/VEOS-research/KernelMachines.jl/blob/{commit}{path}#{line}",
     pages = [
         "index.md",
+        "machines.md",
         "kernels.md",
         "Examples" => [
             "generated/multiscale.md",

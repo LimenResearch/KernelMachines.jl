@@ -5,6 +5,28 @@ mutable struct KernelMachineRegression{M, O, C}
     result::Union{OptimizationResults, Nothing}
 end
 
+"""
+    KernelMachineRegression(X::AbstractArray, Y::AbstractArray;
+        kernel=additivegaussiankernel, cost=0, dims)
+
+Return a `KernelMachineRegression` object. `X` and `Y` are training input and output.
+`Y` can be either a vector or a matrix. `kernel` is required to have a method
+`kernel(u, v, k=nothing)`,where `u` and `v` are matrices (datapoints are columns),
+and `k` is the kernel evaluated in the previous hidden space.
+See [`additivegaussiankernel`](@ref) for an example.
+`cost` is used to regularize. Finally, `dims` is a tuple containing the dimensionality
+of the spaces that compose the machine space.
+
+!!! note
+    `dims` here is different than in [`KernelMachine`](@ref), as it excludes
+    the dimensionality of the output. For instance, setting `dims=(3, 3, 3)`
+    on a `KernelMachineRegression` with scalar output (i.e., `y::AbstractVector`)
+    would correspond to a machine with `dims=(3, 3, 3, 1)`.
+
+Use `fit!(kr::KernelMachineRegression)` to fit the `KernelMachineRegression` object, and
+`predict(kr::KernelMachineRegression, input)` to get the model prediction on a dataset.
+If no `input` is given, it will default to the training data.
+"""
 function KernelMachineRegression(X::AbstractArray, Y::AbstractArray;
     kernel=additivegaussiankernel, cost=0, dims)
 

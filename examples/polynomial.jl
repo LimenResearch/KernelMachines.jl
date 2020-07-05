@@ -7,11 +7,11 @@ using KernelMachines, StatsBase, Plots
 
 f(x, y) = (2x-1)^2 + 2y + x * y - 3
 f((x, y)) = f(x, y)
-theme(:wong)
 rg = 0:0.01:1
 N = length(rg)
 flat = hcat(repeat(rg, inner=N), repeat(rg, outer=N))
 truth = map(f, eachrow(flat))
+theme(:wong)
 surface(rg, rg, reshape(truth, N, N), clims=(-3, 1))
 
 # Let us generate a `6 x 6` trainig grid.

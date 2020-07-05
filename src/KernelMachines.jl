@@ -19,6 +19,8 @@ export KernelMachine, KernelRegression, KernelMachineRegression
 
 export additivegaussiankernel, multiplicativegaussiankernel, gaussiankernel
 
+export fit!, predict
+
 include("utils.jl")
 include("kernels.jl")
 include("kernelmachine.jl")
