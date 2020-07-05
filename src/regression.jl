@@ -7,7 +7,7 @@ mutable struct KernelRegression{K, I, O, C}
 end
 
 function KernelRegression(X::AbstractArray, Y::AbstractArray;
-    kernel=radialkernel, cost=0)
+    kernel=gaussiankernel, cost=0)
 
     return KernelRegression(kernel, X, Y, nothing, cost)
 end

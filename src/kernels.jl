@@ -1,33 +1,22 @@
-abstract type AbstractKernel end
-
-(ker::AbstractKernel)(u, v) = compute(ker, u, v)
-
-(ker::AbstractKernel)(::Nothing, u, v) = ker(u, v)
-
-function (ker::AbstractKernel)(k1, u, v)
-    k2 = compute(ker, u, v)
-    return combine(ker, k1, k2)
+function combined(op, kernel_function)
+    function combined_kernel_function(u, v, k=nothing)
+        ker = kernel_function(u, v)
+        isnothing(k) ? ker : op.(k, ker)
+    end
 end
 
-# Example AbstractKernels
+# Kernel functions
 
-struct AdditiveRadialKernel <: AbstractKernel; end
+"""
+    gaussiankernel(u, v)
 
-const additiveradialkernel = AdditiveRadialKernel()
-
-combine(::AdditiveRadialKernel, k1, k2) = k1 + k2
-
-compute(::AdditiveRadialKernel, u, v) = radialkernel(u, v)
-
-struct MultiplicativeRadialKernel <: AbstractKernel; end
-
-combine(::MultiplicativeRadialKernel, k1, k2) = k1 .* k2
-
-compute(::MultiplicativeRadialKernel, u, v) = radialkernel(u, v)
-
-const multiplicativeradialkernel = MultiplicativeRadialKernel()
-
-function radialkernel(u, v)
+Compute the Gaussian kernel, given by the formula
+```
+    κ(x,y) = exp(-‖x-y‖²/2).
+```
+`u` and `v` are matrices, where each column is a datapoint.
+"""
+function gaussiankernel(u, v)
     uu = sum(abs2, u, dims=1)
     vv = sum(abs2, v, dims=1)
     acc = u' * v
@@ -35,10 +24,10 @@ function radialkernel(u, v)
     return acc
 end
 
-@adjoint function radialkernel(u, v)
-    r = radialkernel(u, v)
+@adjoint function gaussiankernel(u, v)
+    r = gaussiankernel(u, v)
     # r̄ is short for ∂l / ∂r
-    function radialkernel_pullback(r̄)
+    function gaussiankernel_pullback(r̄)
         m = r .* r̄ # pullback the exponential
         ū = v * m'
         ū .-= sum(m', dims=1) .* u
@@ -46,5 +35,21 @@ end
         v̄ .-= sum(m, dims=1) .* v
         return ū, v̄
     end
-    return r, radialkernel_pullback
+    return r, gaussiankernel_pullback
 end
+
+"""
+    additivegaussiankernel(u, v, k=nothing)
+
+Compute the radial basis function kernel (see [`gaussiankernel`](@ref)) on `u`, `v`.
+If `k` is not `nothing`, add it to the result.
+"""
+const additivegaussiankernel = combined(+, gaussiankernel)
+
+"""
+    additivegaussiankernel(u, v, k=nothing)
+
+Compute the radial basis function kernel (see [`gaussiankernel`](@ref)) on `u`, `v`.
+If `k` is not `nothing`, multiply the result by it.
+"""
+const multiplicativegaussiankernel = combined(*, gaussiankernel)

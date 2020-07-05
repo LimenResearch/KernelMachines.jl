@@ -17,7 +17,7 @@ function KernelMachine(kernel, data::M; dims, init=glorot_uniform) where M
 end
 
 function KernelMachine(data; kwargs...)
-    KernelMachine(additiveradialkernel, data; kwargs...)
+    KernelMachine(additivegaussiankernel, data; kwargs...)
 end
 
 Base.show(io::IO, d::KernelMachine) = print(io, "KernelMachine {...}")
@@ -27,7 +27,7 @@ function consume(kernel, xss, css, indices=axes(first(xss), 2))
     k, sn = nothing, zero(eltype(res))
     # Iteratively update k (kernel), res (result so far), and sn (square norm)
     for (xs, cs) in zip(tail(xss), css)
-        k = kernel(k, res[:, indices], res)
+        k = kernel(res[:, indices], res, k)
         val = cs * k
         res = xs + val
         sn += dot(val[:, indices], cs)
