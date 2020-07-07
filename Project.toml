@@ -1,6 +1,9 @@
 name = "KernelMachines"
 uuid = "6717196d-eae9-43d0-801c-fc416e8966f6"
-authors = ["Pietro Vertechi <pietro.vertechi@neuro.fchampalimaud.org>"]
+authors = [
+  "Pietro Vertechi <pietro.vertechi@neuro.fchampalimaud.org>",
+  "Mattia G. Bergomi <mattia.bergomi@veos.digital>",
+]
 version = "0.1.0"
 
 [deps]
