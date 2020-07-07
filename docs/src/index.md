@@ -1,6 +1,8 @@
 # Home
 
-Julia implementation of *discrete kernel machines*.
+Julia implementation of *discrete kernel machines* [^1].
+
+[^1]: For the theoretical foundations of the framework, see [parametric machines](https://arxiv.org/abs/2007.02777), section 4.
 
 To install, type
 
