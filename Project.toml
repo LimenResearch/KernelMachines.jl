@@ -1,9 +1,6 @@
 name = "KernelMachines"
 uuid = "6717196d-eae9-43d0-801c-fc416e8966f6"
-authors = [
-  "Pietro Vertechi <pietro.vertechi@neuro.fchampalimaud.org>",
-  "Mattia G. Bergomi <mattia.bergomi@veos.digital>",
-]
+authors = ["Pietro Vertechi <pietro.vertechi@neuro.fchampalimaud.org>", "Mattia G. Bergomi <mattia.bergomi@veos.digital>"]
 version = "0.1.0"
 
 [deps]
@@ -14,6 +11,8 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
+Optim = "0.21, 0.22"
+StatsBase = "0.32, 0.33"
 Zygote = "0.4, 0.5"
 julia = "1.5"
 
