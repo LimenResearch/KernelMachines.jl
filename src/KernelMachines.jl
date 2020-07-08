@@ -3,7 +3,7 @@ module KernelMachines
 using Base: tail
 using LinearAlgebra: dot, I
 using Statistics: mean
-using Zygote: @adjoint, pullback
+using Zygote: @adjoint, pullback, @nograd
 using Optim: optimize,
              minimizer,
              OptimizationResults,
