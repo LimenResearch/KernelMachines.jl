@@ -9,7 +9,7 @@ To install, type
 ```julia
 julia> import Pkg
 
-julia> Pkg.add(url="https://gitlab.com/VEOS-research/KernelMachines.jl")
+julia> Pkg.add(url="https://gitlab.com/VeosDigital/KernelMachines.jl")
 ```
 
 in the Julia REPL.
