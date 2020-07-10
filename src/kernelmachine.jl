@@ -67,7 +67,7 @@ function (dm::KernelMachine)(input)
     full = maybe_hcat(data, input)
     xs = augmenter * full
     cost = sum(abs2, augmenter)
-    xss, css = slice(xs, dims), slice(cs, tail(dims))
+    xss, css = split_matrix(xs, dims), split_matrix(cs, tail(dims))
     res, sn = consume(kernel, xss, css, axes(data, 2))
     return res, cost + sn
 end
