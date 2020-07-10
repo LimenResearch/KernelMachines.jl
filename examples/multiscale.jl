@@ -3,9 +3,10 @@
 # First, let us load the relevant packages and define our problem.
 # We want to interpolate a noisy version of `sin(x²/2)`.
 
-using KernelMachines, Statistics, Plots
+using KernelMachines, Statistics, Plots, Random
 
 func(x) = sin(x^2 / 2)
+Random.seed!(1234) # for reproducibility
 xs = 8 .* rand(100)
 ys = @. func(xs) + rand()
 scatter(xs, ys, color="black", xlabel="", ylabel="", primary=false)
