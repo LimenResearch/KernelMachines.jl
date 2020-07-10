@@ -3,7 +3,8 @@ module KernelMachines
 using Base: tail
 using LinearAlgebra: dot, I
 using Statistics: mean
-using Zygote: @adjoint, pullback, @nograd
+using ChainRulesCore: NO_FIELDS
+using Zygote: pullback, @nograd
 using Optim: optimize,
              minimizer,
              OptimizationResults,
@@ -13,6 +14,7 @@ using Optim: optimize,
              default_options,
              Options
 
+import ChainRulesCore: rrule
 import StatsBase: fit!, predict
 
 export KernelMachine, KernelRegression, KernelMachineRegression

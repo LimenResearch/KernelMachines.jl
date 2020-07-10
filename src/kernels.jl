@@ -24,7 +24,7 @@ function gaussiankernel(u, v)
     return acc
 end
 
-@adjoint function gaussiankernel(u, v)
+function rrule(::typeof(gaussiankernel), u, v)
     r = gaussiankernel(u, v)
     # r̄ is short for ∂l / ∂r
     function gaussiankernel_pullback(r̄)
@@ -33,7 +33,7 @@ end
         ū .-= sum(m', dims=1) .* u
         v̄ = u * m
         v̄ .-= sum(m, dims=1) .* v
-        return ū, v̄
+        return NO_FIELDS, ū, v̄
     end
     return r, gaussiankernel_pullback
 end
