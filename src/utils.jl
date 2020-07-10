@@ -4,9 +4,10 @@ else
     _cumsum(t) = cumsum(t)
 end
 
-# TODO: slice versus view, issue with CuArrays dispatch
-function slice(mat::AbstractMatrix, list::Dims)
-    map(_cumsum(list), list) do post, diff
+# TODO: decide on slice versus view
+# Using view, there would be issues with CuArrays dispatch
+function split_matrix(mat::AbstractMatrix, dims::Dims)
+    map(_cumsum(dims), dims) do post, diff
         pre = post - diff + 1
         return mat[pre:post, :]
     end
