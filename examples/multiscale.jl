@@ -57,6 +57,11 @@ plt
 #
 #     The API to pass optimization method and options to Optim.jl may change
 #     in the future.
+# 
+# Here, we try a different optimization method (`GradientDescent`) and
+# different options (maximum number of iterations and required relative
+# precision).
+#
 
 using Optim: Options, GradientDescent, ConjugateGradient
 
