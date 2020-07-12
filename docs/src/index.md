@@ -9,7 +9,7 @@ To install, type
 ```julia
 julia> import Pkg
 
-julia> Pkg.add(url="https://gitlab.com/VeosDigital/KernelMachines.jl")
+julia> Pkg.add("KernelMachines")
 ```
 
 in the Julia REPL.
@@ -18,10 +18,10 @@ in the Julia REPL.
 
     This package requires Julia 1.4.
 
-To run the examples, you will also need to install Plots:
+To run the examples, you will also need to install Plots and, optionally, Optim:
 
 ```julia
 julia> import Pkg
 
-julia> Pkg.add("Plots")
+julia> Pkg.add(["Plots", "Optim"])
 ```

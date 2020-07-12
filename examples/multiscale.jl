@@ -15,9 +15,11 @@ scatter(xs, ys, color="black", xlabel="", ylabel="", primary=false)
 # kernel. Other than the kernel, we can choose the dimensionality of the hidden
 # spaces, in this case, `(3, 3, 3)`, and the regularization coefficient, `cost=0.0005`.
 
-krm = KernelMachineRegression(xs, ys;
-kernel=additivegaussiankernel,
-dims=(3, 3, 3), cost=0.0005)
+krm = KernelMachineRegression(
+    xs, ys;
+    kernel=additivegaussiankernel,
+    dims=(3, 3, 3), cost=0.0005
+)
 fit!(krm)
 us = range(extrema(xs)...; step = 0.01)
 pred_krm = predict(krm, us)
@@ -42,5 +44,45 @@ plt = scatter(xs, ys, color="black", xlabel="", ylabel="", primary=false,
 
 plot!(plt, us, pred_krm, label="KM", linewidth=2)
 plot!(plt, us, pred_kr, label="KR", linewidth=2)
+plot!(plt, us, func.(us) .+ 0.5, label="Truth", linewidth=2, color="black")
+plt
+
+# Note that the fitting procedure of `KernelMachineRegression` is done via
+# [Optim.jl](https://github.com/JuliaNLSolvers/Optim.jl). One can therefore
+# pass both different optimization mathods and different options, such as
+# number of iterations, or required accuracy. The default method is
+# `ConjugateGradient`.
+#
+# !!! note
+#
+#     The API to pass optimization method and options to Optim.jl may change
+#     in the future.
+
+using Optim: Options, GradientDescent, ConjugateGradient
+
+krm_descent = KernelMachineRegression(
+    xs, ys;
+    kernel=additivegaussiankernel,
+    dims=(3, 3, 3), cost=0.0005
+)
+krm_cg_approx = KernelMachineRegression(
+    xs, ys;
+    kernel=additivegaussiankernel,
+    dims=(3, 3, 3), cost=0.0005
+)
+fit!(krm_descent, GradientDescent(), Options(iterations=1000))
+fit!(krm_cg_approx, ConjugateGradient(), Options(f_reltol=1e-3))
+pred_krm_descent = predict(krm_descent, us)
+pred_krm_cg_approx = predict(krm_cg_approx, us);
+
+# In this simple test, `ConjugateGradient` with approximate convergence
+# conditions is significantly faster and gives a reasonably good solution. 
+
+plt = scatter(xs, ys, color="black", xlabel="", ylabel="", primary=false,
+    legend=:bottomleft)
+
+plot!(plt, us, pred_krm, label="CG", linewidth=2)
+plot!(plt, us, pred_krm_descent, label="Descent", linewidth=2)
+plot!(plt, us, pred_krm_cg_approx, label="CG approx", linewidth=2)
 plot!(plt, us, func.(us) .+ 0.5, label="Truth", linewidth=2, color="black")
 plt
