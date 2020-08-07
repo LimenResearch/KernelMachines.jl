@@ -16,7 +16,7 @@ ChainRulesCore = "0.9"
 Optim = "0.21, 0.22"
 StatsBase = "0.32, 0.33"
 Zygote = "0.5"
-julia = "1.4"
+julia = "1.5"
 
 [extras]
 FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
