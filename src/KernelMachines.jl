@@ -4,7 +4,7 @@ using Base: tail
 using LinearAlgebra: dot, I
 using Statistics: mean
 using ChainRulesCore: NO_FIELDS
-using Zygote: pullback, @nograd
+using Zygote: pullback
 using Optim: optimize,
              minimizer,
              OptimizationResults,

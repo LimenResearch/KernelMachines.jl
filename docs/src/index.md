@@ -16,7 +16,7 @@ in the Julia REPL.
 
 !!! warning
 
-    This package requires Julia 1.4.
+    This package requires Julia 1.5.
 
 To run the examples, you will also need to install Plots and, optionally, Optim:
 
